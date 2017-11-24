@@ -3,7 +3,15 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/Z:/Strukdis/TugasAkhirStrukdis/src/main/Main.java</file>
+            <file>file:/D:/IF%20UNPAR/_SEMESTER%203/Struktur%20Diskret/Strukdis/TugasAkhirStrukdis/src/model/ModelNode.java</file>
+            <file>file:/D:/IF%20UNPAR/_SEMESTER%203/Struktur%20Diskret/Strukdis/TugasAkhirStrukdis/src/model/Graph.java</file>
+            <file>file:/D:/IF%20UNPAR/_SEMESTER%203/Struktur%20Diskret/Strukdis/TugasAkhirStrukdis/src/view/EdgeLayout.fxml</file>
+            <file>file:/D:/IF%20UNPAR/_SEMESTER%203/Struktur%20Diskret/Strukdis/TugasAkhirStrukdis/src/view/NodeLayout.fxml</file>
+            <file>file:/D:/IF%20UNPAR/_SEMESTER%203/Struktur%20Diskret/Strukdis/TugasAkhirStrukdis/src/controller/MainScreenController.java</file>
+            <file>file:/D:/IF%20UNPAR/_SEMESTER%203/Struktur%20Diskret/Strukdis/TugasAkhirStrukdis/src/model/Node.java</file>
+            <file>file:/D:/IF%20UNPAR/_SEMESTER%203/Struktur%20Diskret/Strukdis/TugasAkhirStrukdis/src/controller/EdgeLayoutController.java</file>
+            <file>file:/D:/IF%20UNPAR/_SEMESTER%203/Struktur%20Diskret/Strukdis/TugasAkhirStrukdis/src/controller/NodeLayoutController.java</file>
+            <file>file:/D:/IF%20UNPAR/_SEMESTER%203/Struktur%20Diskret/Strukdis/TugasAkhirStrukdis/src/main/Main.java</file>
         </group>
     </open-files>
 </project-private>

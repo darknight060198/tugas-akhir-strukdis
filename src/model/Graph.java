@@ -3,6 +3,8 @@ package model;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 public class Graph {
 
@@ -27,6 +29,33 @@ public class Graph {
         }
         
         return true;
+    }
+    
+    public void removeNode(int index) {
+        nodes.remove(index);
+    }
+    
+    public void removeEdge(int index) {
+        edges.remove(index);
+    }
+
+    public ArrayList<Node> getNodes() {
+        return nodes;
+    }
+
+    public ArrayList<Edge> getEdges() {
+        return edges;
+    }
+    
+    public ObservableList<ModelNode> getNodesAsObservableModel() {
+        Iterator<Node> nodeIt = nodes.iterator();
+        ArrayList<ModelNode> resNode = new ArrayList<>();
+        while (nodeIt.hasNext()) {
+            Node temp = nodeIt.next();
+            resNode.add(new ModelNode(temp.number, temp.getName()));
+        }
+        
+        return FXCollections.observableArrayList(resNode);
     }
     
     public ArrayList<Edge> kruskalMST(){

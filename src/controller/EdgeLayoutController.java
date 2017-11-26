@@ -18,6 +18,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
+import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
@@ -28,6 +29,7 @@ import javafx.scene.control.TextFormatter;
 import javafx.scene.control.TextFormatter.Change;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
+import model.Edge;
 import model.Graph;
 import model.ModelEdge;
 import model.ModelNode;
@@ -47,6 +49,7 @@ public class EdgeLayoutController implements Initializable {
     private StringProperty text;
     private ObservableList<ModelEdge> edgeList;
     private ArrayList<Node> nodes;
+    private ArrayList<Edge> edges;
     private ArrayList<String> nodeList;
 
     /**
@@ -63,31 +66,37 @@ public class EdgeLayoutController implements Initializable {
 
     public void initVariable(Graph g) {
         this.g = g;
-        edgeList = g.getModelEdgeAsObservableList();
-        nodes = g.getNodes();
-        edgeTable.setItems(edgeList);
-        synchronizeNodeList();
+        synchronizeAll();
     }
 
     @FXML
     public void addWCodeButtonOnClick(ActionEvent event) {
         showDialogAddWCode();
+        synchronizeAll();
     }
 
     @FXML
     public void addWNameButtonOnClick(ActionEvent event) {
-        synchronizeNodeList();
+        synchronizeAll();
 //        showDialogAdd();
     }
 
     @FXML
     public void removeButtonOnClick(ActionEvent event) {
-
+        int idx = edgeTable.getSelectionModel().getSelectedIndex();
+        if (idx < 0) {
+            return;
+        }
+        showDialogRemove();
     }
 
     @FXML
     public void updateButtonOnClick(ActionEvent event) {
-
+        int idx = edgeTable.getSelectionModel().getSelectedIndex();
+        if (idx < 0) {
+            return;
+        }
+        showDialogUpdate();
     }
 
     public StringProperty getText() {
@@ -159,7 +168,7 @@ public class EdgeLayoutController implements Initializable {
 
             if (g.addEdges(src, dst, weight)) {
                 edgeList.add(new ModelEdge(weight, nodes.get(src), nodes.get(dst)));
-                String res = "Success to add node!!\nAdded edge from " + src + " to " + dst + "with weight" + weight + ".";
+                String res = "Success to add node!!\nAdded edge from " + src + " to " + dst + " with weight " + weight + "!";
                 text.setValue(res);
             } else {
                 text.setValue("Failed to add edge!!");
@@ -215,7 +224,88 @@ public class EdgeLayoutController implements Initializable {
             }
         });
     }*/
-    private void synchronizeNodeList() {
+    private void showDialogRemove() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Delete Edge");
+        alert.setHeaderText("Are you sure to delete this selected edge?");
+        alert.setContentText(null);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == ButtonType.OK) {
+            int idx = edgeTable.getSelectionModel().getSelectedIndex();
+            if (idx >= 0 && g.removeEdge(idx)) {
+                text.setValue("Edge " + idx + "("
+                        + nodeList.get(edges.get(idx).getSrc().getNumber()) + " -> " + nodeList.get(edges.get(idx).getDest().getNumber()) + " : " + edgeList.get(idx).getWeight() + ") successfully removed!");
+                synchronizeAll();
+            } else {
+                text.setValue("Edge " + idx + "("
+                        + nodeList.get(edges.get(idx).getSrc().getNumber()) + " -> " + nodeList.get(edges.get(idx).getDest().getNumber()) + " : " + edgeList.get(idx).getWeight() + ") failed to remove!");
+            }
+        } else {
+            alert.close();
+        }
+    }
+
+    private void showDialogUpdate() {
+        // Create the custom dialog.
+        Dialog<String> dialog = new Dialog<>();
+        dialog.setTitle("Update Edge");
+
+        // Set the button types.
+        ButtonType okButtonType = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(okButtonType, ButtonType.CANCEL);
+
+        GridPane gridPane = new GridPane();
+        gridPane.setHgap(10);
+        gridPane.setVgap(10);
+        gridPane.setPadding(new Insets(20, 20, 10, 10));
+
+        Label weightT = new Label("Weight :");
+        TextField weightI = new TextField();
+        weightI.setPromptText("Weight");
+
+        UnaryOperator<Change> integerFilter = change -> {
+            String input = change.getText();
+            if (input.matches("[0-9]*")) {
+                return change;
+            }
+            return null;
+        };
+
+        weightI.setTextFormatter(new TextFormatter<>(integerFilter));
+
+        gridPane.add(weightT, 0, 0);
+        gridPane.add(weightI, 1, 0);
+
+        dialog.getDialogPane().setContent(gridPane);
+
+        // Request focus on the username field by default.
+        Platform.runLater(() -> weightI.requestFocus());
+
+        // Convert the result to a username-password-pair when the login button is clicked.
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == okButtonType) {
+                return weightI.getText();
+            }
+            return null;
+        });
+
+        Optional<String> result = dialog.showAndWait();
+
+        result.ifPresent(nameRes -> {
+            int idx = edgeTable.getSelectionModel().getSelectedIndex();
+            g.updateEdgeWeight(idx, Double.parseDouble(nameRes));
+            text.setValue("Edge " + idx + "("
+                        + nodeList.get(edges.get(idx).getSrc().getNumber()) + " -> " + nodeList.get(edges.get(idx).getDest().getNumber()) + " : " + edgeList.get(idx).getWeight() + ") weight updated to " + Double.parseDouble(nameRes));
+            synchronizeAll();
+        });
+    }
+
+    private void synchronizeAll() {
         this.nodeList = g.getNodeListAsString();
+        this.nodes = g.getNodes();
+        this.edges = g.getEdges();
+        this.edgeList = g.getModelEdgeAsObservableList();
+        this.edgeTable.setItems(edgeList);
     }
 }

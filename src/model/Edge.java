@@ -26,4 +26,8 @@ public class Edge implements Comparable<Edge> {
     public Node getDest() {
         return dest;
     }
+
+    public void setWeight(double weight) {
+        this.weight = weight;
+    }
 }

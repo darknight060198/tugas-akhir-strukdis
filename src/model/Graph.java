@@ -44,7 +44,7 @@ public class Graph {
     }
 
     public ArrayList<Edge> getEdges() {
-        return edges;
+        return new ArrayList<>(edges);
     }
     
     public ObservableList<ModelNode> getModelNodesAsObservableList() {
@@ -135,5 +135,9 @@ public class Graph {
     
     public void updateNodeName(int idx, String newName) {
         nodes.get(idx).setName(newName);
+    }
+    
+    public void updateEdgeWeight(int idx, double weight) {
+        edges.get(idx).setWeight(weight);
     }
 }

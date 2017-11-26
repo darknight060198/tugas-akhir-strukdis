@@ -13,6 +13,7 @@ import java.util.function.UnaryOperator;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -21,6 +22,7 @@ import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableView;
@@ -30,7 +32,10 @@ import javafx.scene.control.TextFormatter.Change;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import model.Edge;
+import model.ErrorAlertDisplayer;
+import model.ErrorLogPrinter;
 import model.Graph;
+import model.HistoryLogPrinter;
 import model.ModelEdge;
 import model.ModelNode;
 import model.Node;
@@ -71,6 +76,7 @@ public class EdgeLayoutController implements Initializable {
 
     @FXML
     public void addWCodeButtonOnClick(ActionEvent event) {
+        synchronizeAll();
         showDialogAddWCode();
         synchronizeAll();
     }
@@ -78,7 +84,8 @@ public class EdgeLayoutController implements Initializable {
     @FXML
     public void addWNameButtonOnClick(ActionEvent event) {
         synchronizeAll();
-//        showDialogAdd();
+        showDialogAddWName();
+        synchronizeAll();
     }
 
     @FXML
@@ -162,24 +169,34 @@ public class EdgeLayoutController implements Initializable {
         Optional<String[]> result = dialog.showAndWait();
 
         result.ifPresent(nameRes -> {
-            int src = Integer.parseInt(nameRes[0]);
-            int dst = Integer.parseInt(nameRes[1]);
-            double weight = Double.parseDouble(nameRes[2]);
+            try {
+                int src = Integer.parseInt(nameRes[0]);
+                int dst = Integer.parseInt(nameRes[1]);
+                double weight = Double.parseDouble(nameRes[2]);
 
-            if (g.addEdges(src, dst, weight)) {
-                edgeList.add(new ModelEdge(weight, nodes.get(src), nodes.get(dst)));
-                String res = "Success to add node!!\nAdded edge from " + src + " to " + dst + " with weight " + weight + "!";
-                text.setValue(res);
-            } else {
-                text.setValue("Failed to add edge!!");
+                if (g.addEdges(src, dst, weight)) {
+                    edgeList.add(new ModelEdge(weight, nodes.get(src), nodes.get(dst)));
+                    String res = "Success to add node!!\nAdded edge from " + nodes.get(src).getName() + " to " + nodes.get(src).getName() + " with weight " + weight + "!";
+                    text.setValue(res);
+                    HistoryLogPrinter.getInstance().addEdge(nameRes[0], nameRes[1], weight);
+                } else {
+                    throw new Exception();
+                }
+            } catch (Exception e) {
+                text.setValue("Failed to add edge!!\nNode code is not valid!");
+                ErrorLogPrinter.getInstance().display("\nFailed to add edge!!\nNode code is not valid!\n" + e.getMessage() + "\n");
+                String message = "";
+                for (int i = 0; i < 5; i++) {
+                    message += e.getStackTrace()[i].toString() + "\n";
+                }
+                ErrorAlertDisplayer.getInstance().display("Error!", "Failed to add edge!!\nNode code is not valid!", message);
             }
         });
     }
 
-    /*
-    private void showDialogAdd() {
+    private void showDialogAddWName() {
         // Create the custom dialog.
-        Dialog<String> dialog = new Dialog<>();
+        Dialog<String[]> dialog = new Dialog<>();
         dialog.setTitle("Add Edge");
 
         // Set the button types.
@@ -191,39 +208,76 @@ public class EdgeLayoutController implements Initializable {
         gridPane.setVgap(10);
         gridPane.setPadding(new Insets(20, 20, 10, 10));
 
-        Label keterangan = new Label("Insert Node Name :");
-        TextField name = new TextField();
-        name.setPromptText("Name");
+        Label sourceT = new Label("Source :");
+        Label destT = new Label("Destination :");
+        Label weightT = new Label("Weight :");
+        TextField weightI = new TextField();
+        weightI.setPromptText("Weight");
+        ChoiceBox<String> sourceI = new ChoiceBox<>(FXCollections.observableArrayList(nodeList));
+        sourceI.getSelectionModel().selectFirst();
+        ChoiceBox<String> destI = new ChoiceBox<>(FXCollections.observableArrayList(nodeList));
+        sourceI.getSelectionModel().selectFirst();
 
-        gridPane.add(keterangan, 0, 0);
-        gridPane.add(name, 1, 0);
+        UnaryOperator<Change> integerFilter = change -> {
+            String input = change.getText();
+            if (input.matches("[0-9]*")) {
+                return change;
+            }
+            return null;
+        };
+
+        weightI.setTextFormatter(new TextFormatter<>(integerFilter));
+
+        gridPane.add(sourceT, 0, 0);
+        gridPane.add(sourceI, 1, 0);
+        gridPane.add(destT, 0, 1);
+        gridPane.add(destI, 1, 1);
+        gridPane.add(weightT, 0, 2);
+        gridPane.add(weightI, 1, 2);
 
         dialog.getDialogPane().setContent(gridPane);
 
         // Request focus on the username field by default.
-        Platform.runLater(() -> name.requestFocus());
+        Platform.runLater(() -> sourceI.requestFocus());
 
         // Convert the result to a username-password-pair when the login button is clicked.
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == okButtonType) {
-                return name.getText();
+                return new String[]{Integer.toString(sourceI.getSelectionModel().getSelectedIndex()), Integer.toString(destI.getSelectionModel().getSelectedIndex()), weightI.getText()};
             }
             return null;
         });
 
-        Optional<String> result = dialog.showAndWait();
+        Optional<String[]> result = dialog.showAndWait();
 
         result.ifPresent(nameRes -> {
-            Node temp = new Node(nodeList.size(), nameRes);
-            if (g.addNode(temp)) {
-                nodeList.add(new ModelNode(temp.number, temp.getName()));
-                text.setValue("Success to add node!!");
-                g.printNode();
-            } else {
-                text.setValue("Failed to add node!!");
+            try {
+                int src = Integer.parseInt(nameRes[0]);
+                int dst = Integer.parseInt(nameRes[1]);
+                double weight = Double.parseDouble(nameRes[2]);
+                
+//                if (src == dst) 
+
+                if (g.addEdges(src, dst, weight)) {
+                    edgeList.add(new ModelEdge(weight, nodes.get(src), nodes.get(dst)));
+                    String res = "Success to add node!!\nAdded edge from " + nodes.get(src).getName() + " to " + nodes.get(src).getName() + " with weight " + weight + "!";
+                    text.setValue(res);
+                    HistoryLogPrinter.getInstance().addEdge(nameRes[0], nameRes[1], weight);
+                } else {
+                    throw new Exception();
+                }
+            } catch (Exception e) {
+                text.setValue("Failed to add edge!!\nNode code is not valid!");
+                ErrorLogPrinter.getInstance().display("\nFailed to add edge!!\nNode code is not valid!\n" + e.getMessage() + "\n");
+                String message = "";
+                for (int i = 0; i < 5; i++) {
+                    message += e.getStackTrace()[i].toString() + "\n";
+                }
+                ErrorAlertDisplayer.getInstance().display("Error!", "Failed to add edge!!\nNode code is not valid!", message);
             }
         });
-    }*/
+    }
+    
     private void showDialogRemove() {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Delete Edge");
@@ -236,6 +290,7 @@ public class EdgeLayoutController implements Initializable {
             if (idx >= 0 && g.removeEdge(idx)) {
                 text.setValue("Edge " + idx + "("
                         + nodeList.get(edges.get(idx).getSrc().getNumber()) + " -> " + nodeList.get(edges.get(idx).getDest().getNumber()) + " : " + edgeList.get(idx).getWeight() + ") successfully removed!");
+                HistoryLogPrinter.getInstance().removeEdge(nodeList.get(edges.get(idx).getSrc().getNumber()), nodeList.get(edges.get(idx).getDest().getNumber()), edgeList.get(idx).getWeight());
                 synchronizeAll();
             } else {
                 text.setValue("Edge " + idx + "("
@@ -296,7 +351,8 @@ public class EdgeLayoutController implements Initializable {
             int idx = edgeTable.getSelectionModel().getSelectedIndex();
             g.updateEdgeWeight(idx, Double.parseDouble(nameRes));
             text.setValue("Edge " + idx + "("
-                        + nodeList.get(edges.get(idx).getSrc().getNumber()) + " -> " + nodeList.get(edges.get(idx).getDest().getNumber()) + " : " + edgeList.get(idx).getWeight() + ") weight updated to " + Double.parseDouble(nameRes));
+                    + nodeList.get(edges.get(idx).getSrc().getNumber()) + " -> " + nodeList.get(edges.get(idx).getDest().getNumber()) + " : " + edgeList.get(idx).getWeight() + ") weight updated to " + Double.parseDouble(nameRes));
+            HistoryLogPrinter.getInstance().updateEdge(nodeList.get(edges.get(idx).getSrc().getNumber()), nodeList.get(edges.get(idx).getDest().getNumber()), edgeList.get(idx).getWeight(), Double.parseDouble(nameRes));
             synchronizeAll();
         });
     }

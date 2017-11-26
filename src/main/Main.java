@@ -6,20 +6,28 @@
 package main;
 
 import java.io.IOException;
+import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
 import javafx.animation.TranslateTransition;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.CacheHint;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 
 /**
@@ -34,6 +42,24 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         this.stage = stage;
+
+        stage.setOnCloseRequest((WindowEvent event) -> {
+            //mengeluarkan dialog
+            Alert alert = new Alert(AlertType.CONFIRMATION);
+            alert.setTitle("Are you sure to exit?");
+            alert.setHeaderText(null);
+            alert.setContentText("Are you ok with this?");
+
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.get() == ButtonType.OK) {
+                Platform.exit();
+                System.exit(0);
+            } else {
+                alert.close();
+                event.consume();
+            }
+        });
+
         initLayout();
         showSplash();
     }
@@ -82,6 +108,11 @@ public class Main extends Application {
             fadeIn.play();
 
             fadeIn.setOnFinished((ActionEvent event) -> {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                }
                 moveOut.play();
             });
 
@@ -102,7 +133,7 @@ public class Main extends Application {
             System.out.println(ex.getMessage());
         }
     }
-    
+
     /**
      * @param args the command line arguments
      */

@@ -118,4 +118,13 @@ public class DisjointSet {
 // 
 //        System.out.println("\nThe number of disjoint set : "+ disjointSet.getNumberofDisjointSet());
 //    }
+
+    @Override
+    public String toString() {
+        String res = "";
+        res = disjointSet.stream().map((a) -> a.toString()).reduce(res, String::concat);
+        return res;
+    }
+    
+    
 }

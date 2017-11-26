@@ -28,7 +28,10 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.util.Pair;
+import model.ErrorAlertDisplayer;
+import model.ErrorLogPrinter;
 import model.Graph;
+import model.HistoryLogPrinter;
 import model.ModelNode;
 import model.Node;
 
@@ -71,14 +74,18 @@ public class NodeLayoutController implements Initializable {
     @FXML
     public void removeButtonOnClick(ActionEvent event) {
         int idx = nodeTable.getSelectionModel().getSelectedIndex();
-        if (idx < 0) return;
+        if (idx < 0) {
+            return;
+        }
         showDialogRemove();
     }
 
     @FXML
     public void updateButtonOnClick(ActionEvent event) {
         int idx = nodeTable.getSelectionModel().getSelectedIndex();
-        if (idx < 0) return;
+        if (idx < 0) {
+            return;
+        }
         showDialogUpdate();
     }
 
@@ -119,13 +126,20 @@ public class NodeLayoutController implements Initializable {
         Optional<String> result = dialog.showAndWait();
 
         result.ifPresent(nameRes -> {
-            Node temp = new Node(nodeList.size(), nameRes);
-            if (g.addNode(temp)) {
-                nodeList.add(new ModelNode(temp.getNumber(), temp.getName()));
-                String res = "Success to add node!!\nAdded node number " + temp.getNumber() + " called " + temp.getName() + ".";
-                text.setValue(res);
+            if (nameRes.isEmpty()) {
+                text.setValue("Failed to add node!! Name is empty.");
+                ErrorLogPrinter.getInstance().display("Failed to add node!! Name is empty.");
+                ErrorAlertDisplayer.getInstance().display("Error", "Name is empty!", "Failed to add node!");
             } else {
-                text.setValue("Failed to add node!!");
+                Node temp = new Node(nodeList.size(), nameRes);
+                if (g.addNode(temp)) {
+                    nodeList.add(new ModelNode(temp.getNumber(), temp.getName()));
+                    String res = "Success to add node!!\nAdded node number " + temp.getNumber() + " called " + temp.getName() + ".";
+                    text.setValue(res);
+                    HistoryLogPrinter.getInstance().addNode(temp.getNumber(), temp.getName());
+                } else {
+                    text.setValue("Failed to add node!!");
+                }
             }
         });
     }
@@ -142,6 +156,7 @@ public class NodeLayoutController implements Initializable {
             if (idx >= 0 && g.removeNode(idx)) {
                 text.setValue("Node " + idx + "("
                         + nodeList.get(idx).getName() + ") successfully removed!");
+                HistoryLogPrinter.getInstance().removeNode(idx, nodeList.get(idx).getName());
                 g.synchronizedNumberNode();
                 nodeList = g.getModelNodesAsObservableList();
                 nodeTable.setItems(nodeList);
@@ -153,7 +168,7 @@ public class NodeLayoutController implements Initializable {
             alert.close();
         }
     }
-    
+
     private void showDialogUpdate() {
         // Create the custom dialog.
         Dialog<String> dialog = new Dialog<>();
@@ -194,7 +209,8 @@ public class NodeLayoutController implements Initializable {
             int idx = nodeTable.getSelectionModel().getSelectedIndex();
             g.updateNodeName(idx, nameRes);
             text.setValue("Node " + idx + "("
-                        + nodeList.get(idx).getName() + ") succesfully updated to " + nameRes + "!");
+                    + nodeList.get(idx).getName() + ") succesfully updated to " + nameRes + "!");
+            HistoryLogPrinter.getInstance().updateNode(idx, nodeList.get(idx).getName(), nameRes);
             nodeList = g.getModelNodesAsObservableList();
             nodeTable.setItems(nodeList);
         });

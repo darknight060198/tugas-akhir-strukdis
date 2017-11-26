@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.text.Font?>
+
+
+<ScrollPane maxHeight="500.0" maxWidth="700.0" minHeight="500.0" minWidth="700.0" prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ResultLayoutController">
+   <content>
+      <TextArea fx:id="resLabel" editable="false" focusTraversable="false" maxHeight="400.0" maxWidth="600.0" minHeight="400.0" minWidth="600.0" prefHeight="400.0" prefWidth="600.0" translateX="50.0" translateY="50.0">
+         <font>
+            <Font name="Calibri" size="30.0" />
+         </font>
+      </TextArea>
+   </content>
+</ScrollPane>

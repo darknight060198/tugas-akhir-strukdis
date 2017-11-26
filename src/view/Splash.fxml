@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane id="AnchorPane" maxHeight="700.0" maxWidth="900.0" minHeight="700.0" minWidth="900.0" prefHeight="700.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Label layoutX="246.0" layoutY="80.0" text="MINIMUM">
+         <font>
+            <Font name="Comic Sans MS Bold" size="80.0" />
+         </font>
+      </Label>
+      <Label layoutX="231.0" layoutY="228.0" text="SPANNING">
+         <font>
+            <Font name="Comic Sans MS Bold" size="80.0" />
+         </font>
+      </Label>
+      <Label layoutX="199.0" layoutY="619.0" text="Kruskal's Algorithm">
+         <font>
+            <Font name="Broadway" size="50.0" />
+         </font>
+      </Label>
+      <Label layoutX="351.0" layoutY="372.0" text="TREE">
+         <font>
+            <Font name="Comic Sans MS Bold" size="80.0" />
+         </font>
+      </Label>
+   </children>
+</AnchorPane>

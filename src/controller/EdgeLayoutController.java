@@ -216,7 +216,7 @@ public class EdgeLayoutController implements Initializable {
         ChoiceBox<String> sourceI = new ChoiceBox<>(FXCollections.observableArrayList(nodeList));
         sourceI.getSelectionModel().selectFirst();
         ChoiceBox<String> destI = new ChoiceBox<>(FXCollections.observableArrayList(nodeList));
-        sourceI.getSelectionModel().selectFirst();
+        destI.getSelectionModel().selectFirst();
 
         UnaryOperator<Change> integerFilter = change -> {
             String input = change.getText();
@@ -260,9 +260,9 @@ public class EdgeLayoutController implements Initializable {
 
                 if (g.addEdges(src, dst, weight)) {
                     edgeList.add(new ModelEdge(weight, nodes.get(src), nodes.get(dst)));
-                    String res = "Success to add node!!\nAdded edge from " + nodes.get(src).getName() + " to " + nodes.get(src).getName() + " with weight " + weight + "!";
+                    String res = "Success to add node!!\nAdded edge from " + nodes.get(src).getName() + " to " + nodes.get(dst).getName() + " with weight " + weight + "!";
                     text.setValue(res);
-                    HistoryLogPrinter.getInstance().addEdge(nameRes[0], nameRes[1], weight);
+                    HistoryLogPrinter.getInstance().addEdge(nodes.get(src).getName(), nodes.get(dst).getName(), weight);
                 } else {
                     throw new Exception();
                 }
@@ -363,5 +363,10 @@ public class EdgeLayoutController implements Initializable {
         this.edges = g.getEdges();
         this.edgeList = g.getModelEdgeAsObservableList();
         this.edgeTable.setItems(edgeList);
+    }
+    
+    public void reset(Graph g) {
+        this.g = g;
+        synchronizeAll();
     }
 }

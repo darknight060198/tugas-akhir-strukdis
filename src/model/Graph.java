@@ -148,4 +148,9 @@ public class Graph {
     public void updateEdgeWeight(int idx, double weight) {
         edges.get(idx).setWeight(weight);
     }
+    
+    public void reset() {
+        nodes.clear();
+        edges.clear();
+    }
 }

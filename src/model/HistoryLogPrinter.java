@@ -47,9 +47,15 @@ public class HistoryLogPrinter {
 
     public void addNode(int kode, String name) {
         try {
+            if (lastCommandIsReset) {
+                value = "";
+                fileWriter.write("");
+                fileWriter.flush();
+            }
             value += "Added node : " + kode + " with name " + name + "\n";
             fileWriter.append("Added node : " + kode + " with name " + name + "\n");
             System.out.println("add yes");
+            lastCommandIsReset = false;
         } catch (IOException ex) {
             System.out.println("add no");
         }
@@ -62,8 +68,14 @@ public class HistoryLogPrinter {
 
     public void removeNode(int kode, String name) {
         try {
+            if (lastCommandIsReset) {
+                value = "";
+                fileWriter.write("");
+                fileWriter.flush();
+            }
             value += "Removed node : " + kode + " with name " + name + "\n";
             fileWriter.append("Removed node : " + kode + " with name " + name + "\n");
+            lastCommandIsReset = false;
         } catch (IOException ex) {
 
         }
@@ -76,8 +88,14 @@ public class HistoryLogPrinter {
 
     public void updateNode(int kode, String oldName, String newName) {
         try {
+            if (lastCommandIsReset) {
+                value = "";
+                fileWriter.write("");
+                fileWriter.flush();
+            }
             value += "Updated node : " + kode + " with name " + oldName + " to " + newName + "\n";
             fileWriter.append("Updated node : " + kode + " with name " + oldName + " to " + newName + "\n");
+            lastCommandIsReset = false;
         } catch (IOException ex) {
 
         }
@@ -90,8 +108,14 @@ public class HistoryLogPrinter {
 
     public void addEdge(String firstNode, String secondNode, double weight) {
         try {
+            if (lastCommandIsReset) {
+                value = "";
+                fileWriter.write("");
+                fileWriter.flush();
+            }
             value += "Added Edge : " + firstNode + " to " + secondNode + " with weight " + weight + "\n";
             fileWriter.append("Added Edge : " + firstNode + " to " + secondNode + " with weight " + weight + "\n");
+            lastCommandIsReset = false;
         } catch (IOException ex) {
 
         }
@@ -100,13 +124,18 @@ public class HistoryLogPrinter {
         } catch (IOException ex) {
 
         }
-        lastCommandIsReset = false;
     }
 
     public void removeEdge(String firstNode, String secondNode, double weight) {
         try {
+            if (lastCommandIsReset) {
+                value = "";
+                fileWriter.write("");
+                fileWriter.flush();
+            }
             value += "Removed Edge : " + firstNode + " to " + secondNode + " with weight " + weight + "\n";
             fileWriter.append("Removed Edge : " + firstNode + " to " + secondNode + " with weight " + weight + "\n");
+            lastCommandIsReset = false;
         } catch (IOException ex) {
 
         }
@@ -115,13 +144,18 @@ public class HistoryLogPrinter {
         } catch (IOException ex) {
 
         }
-        lastCommandIsReset = false;
     }
 
     public void updateEdge(String firstNode, String secondNode, double oldWeight, double newWeight) {
         try {
+            if (lastCommandIsReset) {
+                value = "";
+                fileWriter.write("");
+                fileWriter.flush();
+            }
             value += "Updated Edge : " + firstNode + " to " + secondNode + " with weight " + oldWeight + " change to " + newWeight + "\n";
             fileWriter.append("Updated Edge : " + firstNode + " to " + secondNode + " with weight " + oldWeight + " change to " + newWeight + "\n");
+            lastCommandIsReset = false;
         } catch (IOException ex) {
 
         }
@@ -130,7 +164,6 @@ public class HistoryLogPrinter {
         } catch (IOException ex) {
 
         }
-        lastCommandIsReset = false;
     }
 
     public void addMSTResult(String res) {
@@ -140,6 +173,7 @@ public class HistoryLogPrinter {
                 value += "FINISH";
                 fileWriter.append(res);
                 fileWriter.append("FINISH");
+                lastCommandIsReset = true;
             }
         } catch (IOException ex) {
 

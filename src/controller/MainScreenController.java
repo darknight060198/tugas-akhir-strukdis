@@ -39,9 +39,9 @@ public class MainScreenController implements Initializable {
 
     @FXML
     private TextArea consoleText;
-    
+
     @FXML
-    private AnchorPane contentPane; 
+    private AnchorPane contentPane;
 
     private Graph g;
     private ReadOnlyStringWrapper consoleTextProperty;
@@ -63,34 +63,34 @@ public class MainScreenController implements Initializable {
         FXMLLoader fxmlLoader = new FXMLLoader();
         fxmlLoader.setLocation(getClass().getResource("/view/NodeLayout.fxml"));
         AnchorPane frame = fxmlLoader.load();
-        
+
         NodeLayoutController c = (NodeLayoutController) fxmlLoader.getController();
-        
+
         c.initVariable(g);
-        
+
         consoleTextProperty.bindBidirectional(c.getText());
-        
+
         consoleTextProperty.setValue("Adding a node to the graph.");
-        
+
         contentPane.getChildren().setAll(frame);
     }
 
     @FXML
     public void addEdgeRadioOnClick(ActionEvent event) throws IOException {
         addNodeRadio.setSelected(false);
-        
+
         FXMLLoader fxmlLoader = new FXMLLoader();
         fxmlLoader.setLocation(getClass().getResource("/view/EdgeLayout.fxml"));
         AnchorPane frame = fxmlLoader.load();
-        
+
         EdgeLayoutController c = (EdgeLayoutController) fxmlLoader.getController();
-        
+
         c.initVariable(g);
-        
+
         consoleTextProperty.bindBidirectional(c.getText());
-        
+
         consoleTextProperty.setValue("Adding an edge to the graph.");
-        
+
         contentPane.getChildren().setAll(frame);
     }
 
@@ -108,20 +108,39 @@ public class MainScreenController implements Initializable {
             for (int i = 5; i < ex.getStackTrace().length; i++) {
                 message += ex.getStackTrace()[i].toString() + "\n";
             }
-            ErrorLogPrinter.getInstance().display("\n"+ex.getMessage() + "\n" + message + "\n");
+            ErrorLogPrinter.getInstance().display("\n" + ex.getMessage() + "\n" + message + "\n");
             return;
         }
-        
+
         consoleTextProperty.setValue("Executed!");
-        
+
         addNodeRadio.setSelected(false);
         addEdgeRadio.setSelected(false);
-        
+
         FXMLLoader fxmlLoader = new FXMLLoader();
         fxmlLoader.setLocation(getClass().getResource("/view/ResultLayout.fxml"));
         ScrollPane frame = fxmlLoader.load();
-        
+
         contentPane.getChildren().setAll(frame);
+    }
+
+    @FXML
+    public void clearAllButtonOnClick(ActionEvent event) {
+        g.reset();
+
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader();
+            fxmlLoader.setLocation(getClass().getResource("/view/NodeLayout.fxml"));
+            NodeLayoutController c = (NodeLayoutController) fxmlLoader.getController();
+            c.reset(g);
+
+            fxmlLoader.setLocation(getClass().getResource("/view/EdgeLayout.fxml"));
+            EdgeLayoutController c1 = (EdgeLayoutController) fxmlLoader.getController();
+            c1.reset(g);
+        } catch (Exception ignored) {
+        }
+
+        consoleTextProperty.setValue("All Clear!! :)");
     }
 
 }

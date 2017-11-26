@@ -61,9 +61,7 @@ public class NodeLayoutController implements Initializable {
     }
 
     public void initVariable(Graph g) {
-        this.g = g;
-        nodeList = g.getModelNodesAsObservableList();
-        nodeTable.setItems(nodeList);
+        reset(g);
     }
 
     @FXML
@@ -218,6 +216,12 @@ public class NodeLayoutController implements Initializable {
 
     public StringProperty getText() {
         return text;
+    }
+    
+    public void reset(Graph g) {
+        this.g = g;
+        nodeList = g.getModelNodesAsObservableList();
+        nodeTable.setItems(nodeList);
     }
 
 }
